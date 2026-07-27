@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 from data import load_data
 from forecast import arima_forecast
+from garch_model import forecast_volatility
 
 st.set_page_config(page_title="Stock Forecasting Study", layout="wide")
 
@@ -29,8 +30,10 @@ st.title("📈 Apple Stock Forecasting — A Time-Series Study")
 st.caption("ARIMA(5,1,0) · Linear Regression · SVR · Random Forest · LSTM — "
            "with honest evaluation against a naive baseline.")
 
-tab1, tab2, tab3 = st.tabs(["🔮 Live Forecast", "📊 Model Comparison", "🎯 The Honest Finding"])
-
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🔮 Live Forecast", "📊 Model Comparison",
+    "🎯 The Honest Finding", "🌊 Volatility (GARCH)"
+])
 # ---------------- TAB 1: LIVE FORECAST ----------------
 with tab1:
     st.subheader("Live 30-day ARIMA forecast")
@@ -104,3 +107,52 @@ with tab3:
 
 st.divider()
 st.caption("Evaluation on data capped at 2021 for reproducibility · live forecast uses current data.")
+
+# ---------------- TAB 4: VOLATILITY (GARCH) ----------------
+with tab4:
+    st.subheader("What actually works: forecasting volatility")
+    st.write("Direction is unpredictable (see the previous tab). But *volatility* — "
+             "how much the price swings — **is** predictable, because of volatility "
+             "clustering: big moves follow big moves. GARCH captures exactly this.")
+
+    vdays = st.slider("Volatility forecast horizon (trading days)", 5, 60, 30, key="vol")
+
+    with st.spinner("Fitting GARCH(1,1) on live returns..."):
+        vdf, hist_vol, fc_vol, res = forecast_volatility(days=vdays)
+
+    beta = res.params.get("beta[1]", float("nan"))
+    alpha = res.params.get("alpha[1]", float("nan"))
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Current annualised volatility", f"{hist_vol[-1]:.1f}%")
+    col2.metric("Volatility persistence (β)", f"{beta:.2f}",
+                help="Fraction of today's volatility carried to tomorrow. "
+                     "High β = strong clustering.")
+    col3.metric("Shock decay (α+β)", f"{alpha + beta:.3f}",
+                help="Near 1 means volatility shocks are long-lived.")
+
+    # Plot: recent realised volatility + the forward forecast
+    fig, ax = plt.subplots(figsize=(11, 5))
+    recent_dates = vdf["Date"].iloc[-len(hist_vol):].tail(250)
+    recent_vol = hist_vol[-250:]
+    ax.plot(recent_dates, recent_vol, label="Historical volatility (annualised %)")
+
+    last_date = vdf["Date"].iloc[-1]
+    future_idx = pd.date_range(last_date, periods=vdays + 1, freq="B")[1:]
+    ax.plot(future_idx, fc_vol, "--", color="crimson", label="GARCH forecast")
+    ax.set_ylabel("Annualised volatility (%)")
+    ax.legend()
+    st.pyplot(fig)
+
+    st.markdown(f"""
+    **What this shows.** GARCH(1,1) estimates a volatility persistence (β) of
+    **{beta:.2f}** — meaning {beta*100:.0f}% of today's volatility carries into
+    tomorrow. That high number *is* volatility clustering, quantified.
+
+    Unlike the price forecast, this is a **genuinely useful** result. A risk manager
+    can't tell you if Apple rises or falls tomorrow — but GARCH tells them roughly
+    how much it will move (~{hist_vol[-1]:.0f}% annualised), which is exactly what's
+    needed for options pricing, position sizing, and Value-at-Risk.
+
+    *Extension:* a GJR-GARCH variant would also capture the leverage effect —
+    downward shocks raising volatility more than upward ones.
+    """)
