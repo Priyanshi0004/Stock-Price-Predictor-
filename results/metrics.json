@@ -1,0 +1,85 @@
+{
+  "classical_15": {
+    "Baseline (mean)": {
+      "RMSE": 66.2145,
+      "MAE": 53.0235,
+      "MAPE": 93.4829,
+      "R2": -1.7875,
+      "RMSE_reduction_%": 0.0
+    },
+    "Linear Regression": {
+      "RMSE": 0.4816,
+      "MAE": 0.2637,
+      "MAPE": 0.4368,
+      "R2": 0.9999,
+      "RMSE_reduction_%": 99.2727
+    },
+    "SVR": {
+      "RMSE": 0.7958,
+      "MAE": 0.4627,
+      "MAPE": 0.7685,
+      "R2": 0.9996,
+      "RMSE_reduction_%": 98.7981
+    },
+    "Random Forest": {
+      "RMSE": 1.3242,
+      "MAE": 0.7692,
+      "MAPE": 1.3086,
+      "R2": 0.9989,
+      "RMSE_reduction_%": 98.0001
+    }
+  },
+  "classical_12": {
+    "Baseline (mean)": {
+      "RMSE": 66.2145,
+      "MAE": 53.0235,
+      "MAPE": 93.4829,
+      "R2": -1.7875
+    },
+    "Linear Regression": {
+      "RMSE": 1.3015,
+      "MAE": 0.7268,
+      "MAPE": 1.213,
+      "R2": 0.9989
+    },
+    "SVR": {
+      "RMSE": 1.5107,
+      "MAE": 0.8784,
+      "MAPE": 1.4731,
+      "R2": 0.9985
+    },
+    "Random Forest": {
+      "RMSE": 1.3321,
+      "MAE": 0.7845,
+      "MAPE": 1.3552,
+      "R2": 0.9989
+    }
+  },
+  "n_features_15": 15,
+  "n_features_12": 12,
+  "lstm_80": {
+    "RMSE": 8.0832,
+    "MAE": 4.0999,
+    "MAPE": 4.2231,
+    "R2": 0.9585
+  },
+  "lstm_95": {
+    "RMSE": 7.7887,
+    "MAE": 6.3816,
+    "MAPE": 4.9686,
+    "R2": 0.9323
+  },
+  "arima": {
+    "RMSE": 1.3051,
+    "MAE": 0.7299,
+    "MAPE": 1.2193,
+    "R2": 0.9989
+  },
+  "persistence": {
+    "RMSE": 1.2958,
+    "MAE": 0.7259,
+    "MAPE": 1.2111,
+    "R2": 0.9989
+  },
+  "arima_directional_accuracy": 50.31
+}
